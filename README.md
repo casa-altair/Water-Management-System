@@ -1,0 +1,6 @@
+- Install python 3.8 or 3.10
+- Open terminal in this folder
+- In this folder install all the required libraries using "pip install -r requirements.txt"
+- Connect your PC to ESP Hotspot named: SSID: ESP_Server_123, PASS: 12345678
+- run the app.py using "python app.py"
+- Open Chrome and in URL write: "http://localhost:8090"
