@@ -87,7 +87,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data && data.data) {
-                    document.getElementById("result").value = "Prediction: " + data.data;
+                    document.getElementById("result").value = "The water is usable for: " + data.data;
                 } else {
                     document.getElementById("result").value = "Invalid response!";
                 }
