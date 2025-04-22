@@ -85,8 +85,8 @@
       document.getElementById("turbidityValue").textContent = `Turbidity: ${latest.turbidity}`;
       document.getElementById("waterLevelValue").textContent = `Water Level: ${latest.water_level}%`;
 
-      // Labels for the graph
-      const labels = data.map((_, i) => `Data ${i + 1}`);
+      // Use timestamp for X-axis labels
+      const labels = data.map(d => d.timestamp);
 
       const chartConfigs = [
         { id: "phChart", label: "pH", values: data.map(d => parseFloat(d.ph)), color: "rgba(75, 192, 192, 0.6)" },
@@ -112,7 +112,19 @@
           options: {
             responsive: true,
             scales: {
-              y: { beginAtZero: true }
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: cfg.label
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Time"
+                }
+              }
             }
           }
         });
