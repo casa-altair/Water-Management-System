@@ -10,7 +10,7 @@ from tinydb import TinyDB
 
 # ========== Configuration ==========
 DB_PATH = "db.json"
-ESP_ENDPOINT = "http://localhost:8091/"
+ESP_ENDPOINT = "http://192.168.4.1:8091/"
 DATA_FETCH_INTERVAL = 10  # seconds
 DB_INSERT_INTERVAL = 60  # seconds
 MODEL_PATH = "water_quality_model.pkl"
