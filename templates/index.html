@@ -1,27 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water Quality Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .container { width: 50%; margin: auto; padding: 20px; }
-        h2 { color: #007BFF; }
-        .data-box { border: 2px solid #007BFF; padding: 15px; margin: 10px; border-radius: 5px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Water Quality Dashboard</title>
+  <script src="../static/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      text-align: center;
+    }
+
+    h2 {
+      color: #007BFF;
+      margin-top: 20px;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+
+    .card {
+      background: white;
+      border: 2px solid #007BFF;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .value {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: 250px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Water Quality Monitoring</h2>
-        <div class="data-box">pH Level: <strong>{{ data['ph'] }}</strong></div>
-        <div class="data-box">TDS: <strong>{{ data['tds'] }}</strong></div>
-        <div class="data-box">Turbidity: <strong>{{ data['turbidity'] }}</strong></div>
-        <div class="data-box">Water Level: <strong>{{ data['water_level'] }}%</strong></div>
-        <div class="data-box">Water Usage: <strong>{{ data['usage_type'] }}</strong></div>
+  <h2>Water Quality Monitoring</h2>
+  <div class="grid-container">
+    <div class="card">
+      <div class="value" id="phValue">pH: --</div>
+      <canvas id="phChart"></canvas>
     </div>
-    <script>
-        setInterval(() => { location.reload(); }, 5000);
-    </script>
+    <div class="card">
+      <div class="value" id="tdsValue">TDS: --</div>
+      <canvas id="tdsChart"></canvas>
+    </div>
+    <div class="card">
+      <div class="value" id="turbidityValue">Turbidity: --</div>
+      <canvas id="turbidityChart"></canvas>
+    </div>
+    <div class="card">
+      <div class="value" id="waterLevelValue">Water Level: --</div>
+      <canvas id="waterLevelChart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    async function loadCharts() {
+      const response = await fetch("http://localhost:8090/get_last_10_data");
+      const json = await response.json();
+      const data = json.data;
+
+      if (!data.length) return;
+
+      // Get the latest values
+      const latest = data[data.length - 1];
+      document.getElementById("phValue").textContent = `pH: ${latest.ph}`;
+      document.getElementById("tdsValue").textContent = `TDS: ${latest.tds}`;
+      document.getElementById("turbidityValue").textContent = `Turbidity: ${latest.turbidity}`;
+      document.getElementById("waterLevelValue").textContent = `Water Level: ${latest.water_level}%`;
+
+      // Labels for the graph
+      const labels = data.map((_, i) => `Data ${i + 1}`);
+
+      const chartConfigs = [
+        { id: "phChart", label: "pH", values: data.map(d => parseFloat(d.ph)), color: "rgba(75, 192, 192, 0.6)" },
+        { id: "tdsChart", label: "TDS", values: data.map(d => parseFloat(d.tds)), color: "rgba(255, 159, 64, 0.6)" },
+        { id: "turbidityChart", label: "Turbidity", values: data.map(d => parseFloat(d.turbidity)), color: "rgba(153, 102, 255, 0.6)" },
+        { id: "waterLevelChart", label: "Water Level", values: data.map(d => parseFloat(d.water_level)), color: "rgba(255, 99, 132, 0.6)" },
+      ];
+
+      chartConfigs.forEach(cfg => {
+        new Chart(document.getElementById(cfg.id), {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: cfg.label,
+              data: cfg.values,
+              backgroundColor: cfg.color,
+              borderColor: cfg.color,
+              fill: false,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      });
+    }
+
+    window.onload = loadCharts;
+
+    // Auto-refresh every 5 seconds
+    setInterval(() => { location.reload(); }, 5000);
+  </script>
 </body>
 </html>
