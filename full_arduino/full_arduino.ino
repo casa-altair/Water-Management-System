@@ -8,10 +8,10 @@
 #define TDS_SENSOR A1
 #define TURBIDITY_SENSOR A2
 
-#define RELAY_PUMP 11
 #define RELAY_ACID 8
 #define RELAY_BASE 10
-#define RELAY_NEUTRAL 9
+#define RELAY_PUMP_FILL 11
+#define RELAY_PUMP_OVER 9
 
 const int tankHeight = 30;  // Define your tank height in cm
 float waterLevelPercent = 0;
@@ -32,15 +32,15 @@ void setup() {
 
   pinMode(TRIG, OUTPUT);
   pinMode(ECHO, INPUT);
-  pinMode(RELAY_PUMP, OUTPUT);
+  pinMode(RELAY_PUMP_FILL, OUTPUT);
   pinMode(RELAY_ACID, OUTPUT);
   pinMode(RELAY_BASE, OUTPUT);
-  pinMode(RELAY_NEUTRAL, OUTPUT);
+  pinMode(RELAY_PUMP_OVER, OUTPUT);
 
-  digitalWrite(RELAY_PUMP, HIGH);
+  digitalWrite(RELAY_PUMP_FILL, HIGH);
   digitalWrite(RELAY_ACID, HIGH);
   digitalWrite(RELAY_BASE, HIGH);
-  digitalWrite(RELAY_NEUTRAL, HIGH);
+  digitalWrite(RELAY_PUMP_OVER, HIGH);
 
   lcd.init();
   lcd.backlight();
@@ -67,15 +67,21 @@ float getWaterLevel() {
   return water_perc;
 }
 
+
 void controlPump(float waterLevelPercent) {
   if ((waterLevelPercent > 0) && (waterLevelPercent < 70)) {
-    digitalWrite(RELAY_PUMP, LOW);
-  } else if ((waterLevelPercent > 70) && (waterLevelPercent < 100)) {
-    digitalWrite(RELAY_PUMP, HIGH);
+    digitalWrite(RELAY_PUMP_FILL, LOW);
+    digitalWrite(RELAY_PUMP_OVER, HIGH);
+  }
+
+  else if ((waterLevelPercent > 80) && (waterLevelPercent < 100)) {
+    digitalWrite(RELAY_PUMP_FILL, HIGH);
+    digitalWrite(RELAY_PUMP_OVER, LOW);
   }
 
   else {
-    digitalWrite(RELAY_PUMP, HIGH);
+    digitalWrite(RELAY_PUMP_FILL, HIGH);
+    digitalWrite(RELAY_PUMP_OVER, HIGH);
   }
 }
 
@@ -118,11 +124,10 @@ void loop() {
   if (chk_waterLevelPercent_var > 0.00) {
     waterLevelPercent_var = chk_waterLevelPercent_var;
   }
-  Serial.println(waterLevelPercent_var);
 
 
   controlPump(waterLevelPercent_var);
-  // controlPH(phValue);
+  controlPH(phValue);
 
   if (millis() - displastSendTime > 500) {
     displastSendTime = millis();
@@ -131,7 +136,8 @@ void loop() {
 
   if (millis() - lastSendTime > 1000) {
     lastSendTime = millis();
-    Serial.println("Write data");
+
+
     espSerial.print(phValue);
     Serial.print(phValue);
     espSerial.print(",");
