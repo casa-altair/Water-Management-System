@@ -69,7 +69,7 @@ float getWaterLevel() {
 
 
 void controlPump(float waterLevelPercent) {
-  if ((waterLevelPercent > 0) && (waterLevelPercent < 70)) {
+  if ((waterLevelPercent > 0) && (waterLevelPercent < 60)) {
     digitalWrite(RELAY_PUMP_FILL, LOW);
     digitalWrite(RELAY_PUMP_OVER, HIGH);
   }
@@ -85,20 +85,56 @@ void controlPump(float waterLevelPercent) {
   }
 }
 
+// void controlPH(float ph) {
+
+//    int ph_int = (int)ph;
+//   //  Serial.println("ph = " + String(ph_int));
+
+
+//   if (ph_int > 0 && ph_int < 6) {
+//     // Turn On Base Relay
+
+//     digitalWrite(RELAY_BASE, LOW);
+//     digitalWrite(RELAY_ACID, HIGH);
+//   }
+
+//   else if (ph_int > 7 && ph_int < 15) {
+//     // Turn On Acid Relay
+
+//     digitalWrite(RELAY_ACID, LOW);
+//     digitalWrite(RELAY_BASE, HIGH);
+//   }
+
+//   else {
+//     digitalWrite(RELAY_BASE, HIGH);
+//     digitalWrite(RELAY_ACID, HIGH);
+//   }
+// }
+
+
 void controlPH(float ph) {
-  if (ph < 6.5) {
+
+  if (ph > 0 && ph < 6.5) {
+    // Turn On Base Relay
+
     digitalWrite(RELAY_BASE, LOW);
     digitalWrite(RELAY_ACID, HIGH);
-  } else if (ph > 7.5) {
+  }
+
+  else if (ph > 7.5 && ph < 15) {
+    // Turn On Acid Relay
+
     digitalWrite(RELAY_ACID, LOW);
     digitalWrite(RELAY_BASE, HIGH);
-  } else {
+  }
+
+  else {
     digitalWrite(RELAY_BASE, HIGH);
     digitalWrite(RELAY_ACID, HIGH);
   }
 }
 
-void updateLCD(float ph, float tds, float turbidity, float water) {
+void updateLCD (float ph, float tds, float turbidity, float water) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("pH: ");
